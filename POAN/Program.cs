@@ -7,18 +7,28 @@ namespace POAN
     {
         public static void Main(string[] args)
         {
-            BigInteger input = BigInteger.Parse("2777777888888999999");
+            BigInteger input = BigInteger.Pow(10, 200);
 
             do
             {
-                Per(input);
+                var result = Per(input);
+                // Console.WriteLine($"{input.ToString("x")}\t{result}");
+                Console.WriteLine($"{result}");
+
                 input += 1;
             } while (true);
 
             Console.ReadLine();
         }
 
-        private static void Per(BigInteger n, BigInteger? startingN = null, int count = 0)
+        private enum Result
+        {
+            Contains0,
+            NotAscending,
+            Complete
+        }
+
+        private static Result Per(BigInteger n, BigInteger? startingN = null, int count = 0)
         {
             if (startingN == null)
             {
@@ -29,25 +39,41 @@ namespace POAN
 
             if (nString.Length == 1)
             {
-                Console.WriteLine($"{startingN}\t{count}");
+                Console.WriteLine($"{startingN?.ToString("x")}\t{count}");
 
                 if (count >= 11)
                 {
-                    Console.WriteLine("Wow");
+                    Console.WriteLine($"{startingN?.ToString("x")}\t{count}");
                 }
-                return;
+
+                return Result.Complete;
             }
 
             BigInteger result = 1;
 
-            foreach (char digit in nString)
+            for (int i = 0; i < nString.Length; i++)
             {
-                int j = int.Parse(digit.ToString());
+                ushort j = ushort.Parse(nString[i].ToString());
+
+                if (j == 0)
+                {
+                    return Result.Contains0;
+                }
+
+                if (i < nString.Length - 1)
+                {
+                    if (ushort.Parse(nString[i + 1].ToString()) < j )
+                    {
+                        // Abort, next number is less than current one
+                        return Result.NotAscending;
+                    }
+                }
+
                 result *= j;
             }
 
-            //Console.WriteLine(result);
-            Per(result, startingN, count + 1);
+            // Console.WriteLine(result.ToString("x"));
+            return Per(result, startingN, count + 1);
         }
     }
 }
